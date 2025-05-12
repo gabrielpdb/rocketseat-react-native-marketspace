@@ -1,10 +1,21 @@
-import { Box, Center, ScrollView, Text, VStack } from "@gluestack-ui/themed"
+import {
+  Box,
+  Center,
+  ScrollView,
+  Text,
+  Toast,
+  ToastTitle,
+  useToast,
+  VStack,
+} from "@gluestack-ui/themed"
 import Logo from "@assets/LogoMarketspaceWithText.svg"
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import { Eye } from "phosphor-react-native"
 import { useNavigation } from "@react-navigation/native"
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes"
+import { useAuth } from "@hooks/useAuth"
+import { AppError } from "@utils/AppError"
 
 type FormData = {
   email: string
@@ -13,9 +24,32 @@ type FormData = {
 
 export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
+  const { signIn } = useAuth()
+  const toast = useToast()
 
   function handleNavigateSignUp() {
     navigation.navigate("signUp")
+  }
+
+  async function handleSignIn() {
+    try {
+      await signIn("email", "senha")
+    } catch (error) {
+      const isAppError = error instanceof AppError
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível entrar. Tente novamente mais tarde"
+
+      toast.show({
+        placement: "top",
+        render: () => (
+          <Toast>
+            <ToastTitle>{title}</ToastTitle>
+          </Toast>
+        ),
+      })
+    }
   }
 
   return (
@@ -43,7 +77,12 @@ export function SignIn() {
           </Text>
           <Input placeholder="E-mail" />
           <Input placeholder="Senha" icon={Eye} />
-          <Button marginTop={20} title={"Entrar"} themeVariant="default" />
+          <Button
+            marginTop={20}
+            title={"Entrar"}
+            themeVariant="default"
+            onPress={handleSignIn}
+          />
         </Center>
       </VStack>
       <VStack flex={2} px={48}>
