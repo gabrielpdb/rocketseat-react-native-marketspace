@@ -3,9 +3,11 @@ import { ComponentProps } from "react"
 import { ButtonIcon } from "./ButtonIcon"
 import { PencilSimpleLine } from "phosphor-react-native"
 
-type Props = ComponentProps<typeof Image>
+type Props = ComponentProps<typeof Image> & {
+  onPressEditButton: () => Promise<any>
+}
 
-export function UserPhoto({ ...rest }: Props) {
+export function UserPhoto({ onPressEditButton, ...rest }: Props) {
   return (
     <Center width={88} height={88}>
       <Image
@@ -17,6 +19,7 @@ export function UserPhoto({ ...rest }: Props) {
         {...rest}
       />
       <ButtonIcon
+        onPress={onPressEditButton}
         icon={PencilSimpleLine}
         position="absolute"
         bottom={0}
