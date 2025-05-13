@@ -6,13 +6,15 @@ import {
   FormControlErrorText,
   Button,
 } from "@gluestack-ui/themed"
-import { ComponentProps } from "react"
+import { Eye } from "phosphor-react-native"
+import { ComponentProps, useState } from "react"
 
 type Props = ComponentProps<typeof InputField> & {
   errorMessage?: string | null
   isInvalid?: boolean
   isReadOnly?: boolean
   icon?: React.ElementType
+  secureTextEntry?: boolean
 }
 
 export function Input({
@@ -20,9 +22,15 @@ export function Input({
   isInvalid,
   isReadOnly,
   icon: Icon,
+  secureTextEntry = false,
   ...rest
 }: Props) {
   const invalid = !!errorMessage || isInvalid
+  const [hiddenText, setHiddenText] = useState(secureTextEntry)
+
+  function changeVisibility() {
+    setHiddenText(!hiddenText)
+  }
 
   return (
     <FormControl isInvalid={invalid} w={"$full"}>
@@ -47,11 +55,12 @@ export function Input({
           fontFamily="$body"
           color="$gray2"
           placeholderTextColor={"$gray4"}
+          secureTextEntry={hiddenText}
           {...rest}
         />
-        {Icon && (
-          <Button bg="$gray7">
-            <Icon size={20} />
+        {secureTextEntry && (
+          <Button bg="$gray7" alignSelf="center" onPress={changeVisibility}>
+            <Eye size={20} />
           </Button>
         )}
       </GluestackInput>

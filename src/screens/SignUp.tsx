@@ -12,7 +12,6 @@ import {
 import Logo from "@assets/LogoMarketspace.svg"
 import { UserPhoto } from "@components/UserPhoto"
 import { Input } from "@components/Input"
-import { Eye } from "phosphor-react-native"
 import { Button } from "@components/Button"
 import { useNavigation } from "@react-navigation/native"
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes"
@@ -52,7 +51,7 @@ const signUpSchema = yup.object({
 export function SignUp() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
   const toast = useToast()
-  const [name, setName] = useState()
+  const [isLoading, setIsLoading] = useState(false)
   const [userPhotoURI, setUserPhotoURI] = useState("")
   const [userPhotoFile, setUserPhotoFile] = useState()
 
@@ -61,8 +60,6 @@ export function SignUp() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataProps>({ resolver: yupResolver(signUpSchema) })
-
-  console.log(errors)
 
   function handleNavigateSignIn() {
     navigation.navigate("signIn")
@@ -122,7 +119,9 @@ export function SignUp() {
 
   async function handleSignUp({ email, name, password, tel }: FormDataProps) {
     try {
+      setIsLoading(true)
       if (!userPhotoFile) {
+        setIsLoading(false)
         return toast.show({
           placement: "top",
           render: () => (
@@ -161,6 +160,7 @@ export function SignUp() {
       }
       return
     } catch (error) {
+      setIsLoading(false)
       const isAppError = error instanceof AppError
       const title = isAppError
         ? error.message
@@ -239,10 +239,10 @@ export function SignUp() {
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder="Senha"
+                secureTextEntry
                 onChangeText={onChange}
                 value={value}
                 errorMessage={errors.password?.message}
-                icon={Eye}
               />
             )}
           />
@@ -252,10 +252,10 @@ export function SignUp() {
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder="Confirme a senha"
+                secureTextEntry
                 onChangeText={onChange}
                 value={value}
                 errorMessage={errors.password_confirm?.message}
-                icon={Eye}
               />
             )}
           />
@@ -265,6 +265,7 @@ export function SignUp() {
             themeVariant="dark"
             mt={"$2"}
             onPress={handleSubmit(handleSignUp)}
+            isLoading={isLoading}
           />
         </VStack>
 
