@@ -16,24 +16,41 @@ import { useNavigation } from "@react-navigation/native"
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes"
 import { useAuth } from "@hooks/useAuth"
 import { AppError } from "@utils/AppError"
+import * as yup from "yup"
+import { useForm, Controller } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import { useState } from "react"
 
-type FormData = {
+type FormDataProps = {
   email: string
   password: string
 }
 
+const signInSchema = yup.object({
+  email: yup.string().required("Informe o e-mail").email("E-mail inválido"),
+  password: yup.string().required("Informe a senha"),
+})
+
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false)
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
   const { signIn } = useAuth()
   const toast = useToast()
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataProps>({ resolver: yupResolver(signInSchema) })
 
   function handleNavigateSignUp() {
     navigation.navigate("signUp")
   }
 
-  async function handleSignIn() {
+  async function handleSignIn({ email, password }: FormDataProps) {
     try {
-      await signIn("email", "senha")
+      setIsLoading(true)
+      await signIn(email, password)
     } catch (error) {
       const isAppError = error instanceof AppError
 
@@ -41,6 +58,7 @@ export function SignIn() {
         ? error.message
         : "Não foi possível entrar. Tente novamente mais tarde"
 
+      setIsLoading(false)
       toast.show({
         placement: "top",
         render: () => (
@@ -75,13 +93,37 @@ export function SignIn() {
           <Text fontSize={14} color="$gray2">
             Acesse sua conta
           </Text>
-          <Input placeholder="E-mail" />
-          <Input placeholder="Senha" icon={Eye} />
+          <Controller
+            name="email"
+            control={control}
+            render={({ field: { onChange } }) => (
+              <Input
+                placeholder="E-mail"
+                keyboardType="email-address"
+                onChangeText={onChange}
+                errorMessage={errors.email?.message}
+                autoCapitalize="none"
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange } }) => (
+              <Input
+                placeholder="Senha"
+                secureTextEntry
+                onChangeText={onChange}
+                errorMessage={errors.password?.message}
+              />
+            )}
+          />
           <Button
             marginTop={20}
             title={"Entrar"}
             themeVariant="default"
-            onPress={handleSignIn}
+            onPress={handleSubmit(handleSignIn)}
+            isLoading={isLoading}
           />
         </Center>
       </VStack>

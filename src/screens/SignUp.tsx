@@ -218,6 +218,7 @@ export function SignUp() {
                 onChangeText={onChange}
                 value={value}
                 errorMessage={errors.email?.message}
+                keyboardType="email-address"
               />
             )}
           />
