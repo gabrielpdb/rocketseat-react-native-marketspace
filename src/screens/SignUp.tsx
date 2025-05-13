@@ -25,6 +25,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import { AppError } from "@utils/AppError"
 import { api } from "@services/api"
+import Avatar from "@assets/Avatar.png"
 
 type FormDataProps = {
   name: string
@@ -52,9 +53,7 @@ export function SignUp() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
   const toast = useToast()
   const [name, setName] = useState()
-  const [userPhotoURI, setUserPhotoURI] = useState(
-    "http://github.com/gabrielpdb.png"
-  )
+  const [userPhotoURI, setUserPhotoURI] = useState("")
   const [userPhotoFile, setUserPhotoFile] = useState()
 
   const {
@@ -123,8 +122,6 @@ export function SignUp() {
 
   async function handleSignUp({ email, name, password, tel }: FormDataProps) {
     try {
-      console.log("Chegou no signup")
-
       if (!userPhotoFile) {
         return toast.show({
           placement: "top",
@@ -137,7 +134,6 @@ export function SignUp() {
           ),
         })
       }
-      console.log("Passou da foto")
 
       const signUpForm = new FormData()
       signUpForm.append("name", name)
@@ -146,7 +142,6 @@ export function SignUp() {
       signUpForm.append("tel", tel)
       signUpForm.append("avatar", userPhotoFile)
 
-      console.log("Passou dos append")
       const response = await api.post("/users", signUpForm, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -197,7 +192,7 @@ export function SignUp() {
         <Center mb={"$4"}>
           <UserPhoto
             onPressEditButton={handleUserPhotoSelect}
-            source={{ uri: userPhotoURI }}
+            source={userPhotoURI.length > 0 ? { uri: userPhotoURI } : Avatar}
             alt="Foto do usuário"
           />
         </Center>
