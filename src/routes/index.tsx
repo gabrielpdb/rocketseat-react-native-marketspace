@@ -7,7 +7,6 @@ import { AppRoutes } from "./app.routes"
 
 export function Routes() {
   const { user } = useAuth()
-  console.log(user.id)
 
   const theme = DefaultTheme
   theme.colors.background = gluestackUIConfig.tokens.colors.gray6

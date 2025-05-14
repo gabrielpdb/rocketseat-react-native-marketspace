@@ -1,12 +1,21 @@
 import { UserDTO } from "@dtos/UserDTO"
 import { api } from "@services/api"
-import { storageAuthTokenSave } from "@storage/storageAuthToken"
-import { storageUserSave } from "@storage/storageUser"
-import { createContext, ReactNode, useState } from "react"
+import {
+  storageAuthTokenGet,
+  storageAuthTokenRemove,
+  storageAuthTokenSave,
+} from "@storage/storageAuthToken"
+import {
+  storageUserGet,
+  storageUserRemove,
+  storageUserSave,
+} from "@storage/storageUser"
+import { createContext, ReactNode, useEffect, useState } from "react"
 
 export type AuthContextDataProps = {
   user: UserDTO
   signIn: (email: string, password: string) => Promise<void>
+  signOut: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextDataProps>(
@@ -51,7 +60,6 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
         await userAndTokenUpdate(data.user, data.token)
       }
-      console.log(data)
     } catch (error) {
       throw error
     } finally {
@@ -59,8 +67,41 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     }
   }
 
+  async function signOut() {
+    try {
+      setIsLoadingUserStorageData(true)
+      setUser({} as UserDTO)
+      await storageUserRemove()
+      await storageAuthTokenRemove()
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoadingUserStorageData(false)
+    }
+  }
+
+  async function loadUserData() {
+    try {
+      setIsLoadingUserStorageData(true)
+      const userLogged = await storageUserGet()
+      const { token } = await storageAuthTokenGet()
+
+      if (token && userLogged) {
+        userAndTokenUpdate(userLogged, token)
+      }
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoadingUserStorageData(false)
+    }
+  }
+
+  useEffect(() => {
+    loadUserData()
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, signIn }}>
+    <AuthContext.Provider value={{ user, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   )
