@@ -1,9 +1,16 @@
-import { Center, Text } from "@gluestack-ui/themed"
+import { HomeAdsInfos } from "@components/HomeAdsInfos"
+import { HomeAdsList } from "@components/HomeAdsList"
+import { HomeHeader } from "@components/HomeHeader"
+import { VStack } from "@gluestack-ui/themed"
 
 export function Home() {
   return (
-    <Center flex={1}>
-      <Text>Home</Text>
-    </Center>
+    <VStack px={"$6"}>
+      <VStack space="4xl">
+        <HomeHeader />
+        <HomeAdsInfos />
+        <HomeAdsList />
+      </VStack>
+    </VStack>
   )
 }

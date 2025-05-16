@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@gluestack-ui/themed"
 import Logo from "@assets/LogoMarketspace.svg"
-import { UserPhoto } from "@components/UserPhoto"
+import { UserPhotoSelect } from "@components/UserPhotoSelect"
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import { useNavigation } from "@react-navigation/native"
@@ -25,6 +25,7 @@ import { useForm, Controller } from "react-hook-form"
 import { AppError } from "@utils/AppError"
 import { api } from "@services/api"
 import Avatar from "@assets/Avatar.png"
+import { useAuth } from "@hooks/useAuth"
 
 type FormDataProps = {
   name: string
@@ -102,7 +103,7 @@ export function SignUp() {
         const fileExtension = photoURI.split(".").pop()
 
         const photoFile = {
-          name: `${name}.${fileExtension}`.toLowerCase(),
+          name: `new.${fileExtension}`.toLowerCase(),
           uri: photoURI,
           type: `${photoSelected.assets[0].type}/${fileExtension}`,
         } as any
@@ -190,7 +191,7 @@ export function SignUp() {
           </Text>
         </Center>
         <Center mb={"$4"}>
-          <UserPhoto
+          <UserPhotoSelect
             onPressEditButton={handleUserPhotoSelect}
             source={userPhotoURI.length > 0 ? { uri: userPhotoURI } : Avatar}
             alt="Foto do usuário"

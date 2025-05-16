@@ -4,20 +4,26 @@ import { ButtonIcon } from "./ButtonIcon"
 import { PencilSimpleLine } from "phosphor-react-native"
 
 type Props = ComponentProps<typeof Image> & {
-  width?: number
-  uri: string
+  onPressEditButton: () => Promise<any>
 }
 
-export function UserPhoto({ width = 88, ...rest }: Props) {
+export function UserPhotoSelect({ onPressEditButton, ...rest }: Props) {
   return (
-    <Center width={width} height={width}>
+    <Center width={88} height={88}>
       <Image
-        width={width}
-        height={width}
+        width={88}
+        height={88}
         rounded={"$full"}
         borderWidth={"$3"}
         borderColor="$blueLight"
         {...rest}
+      />
+      <ButtonIcon
+        onPress={onPressEditButton}
+        icon={PencilSimpleLine}
+        position="absolute"
+        bottom={0}
+        right={-10}
       />
     </Center>
   )
