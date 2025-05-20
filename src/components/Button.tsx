@@ -54,7 +54,7 @@ export function Button({
   }
 
   return (
-    <GluestackButton bg={getBgColor()} w={"$full"} {...rest}>
+    <GluestackButton bg={getBgColor()} h={"$11"} w={"$full"} {...rest}>
       {isLoading ? (
         <ButtonSpinner />
       ) : (

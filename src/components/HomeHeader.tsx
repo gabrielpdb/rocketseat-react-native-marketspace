@@ -5,9 +5,16 @@ import { Button } from "./Button"
 import { api } from "@services/api"
 import defaultUserPhotoImg from "@assets/Avatar.png"
 import { Plus } from "phosphor-react-native"
+import { useNavigation } from "@react-navigation/native"
+import { AppNavigatorRoutesProps } from "@routes/app.routes"
 
 export function HomeHeader({ ...rest }) {
   const { user } = useAuth()
+  const navigation = useNavigation<AppNavigatorRoutesProps>()
+
+  function handleNavigateCreate() {
+    navigation.navigate("create")
+  }
 
   return (
     <HStack
@@ -40,6 +47,7 @@ export function HomeHeader({ ...rest }) {
         h={"$full"}
         title="Criar anúncio"
         themeVariant="dark"
+        onPress={handleNavigateCreate}
       />
     </HStack>
   )

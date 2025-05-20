@@ -25,7 +25,6 @@ import { useForm, Controller } from "react-hook-form"
 import { AppError } from "@utils/AppError"
 import { api } from "@services/api"
 import Avatar from "@assets/Avatar.png"
-import { useAuth } from "@hooks/useAuth"
 
 type FormDataProps = {
   name: string

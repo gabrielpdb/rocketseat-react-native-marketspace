@@ -93,6 +93,7 @@ export function AppRoutes() {
         name="create"
         component={Create}
         options={{
+          tabBarStyle: { display: "none" },
           tabBarButton: () => null,
           tabBarItemStyle: { display: "none" },
         }}

@@ -8,7 +8,7 @@ import {
 } from "@gluestack-ui/themed"
 import React, { ComponentProps, ReactNode } from "react"
 
-type ButtonThemeVariant = "dark" | "default" | "grayScale"
+type ButtonThemeVariant = "dark" | "default" | "grayScale" | "transparent"
 
 type Props = ComponentProps<typeof GluestackButton> & {
   themeVariant?: ButtonThemeVariant
@@ -30,6 +30,8 @@ export function ButtonIcon({
         return "$blueLight"
       case "grayScale":
         return "$gray5"
+      case "transparent":
+        return ""
     }
   }
 
