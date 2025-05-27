@@ -14,12 +14,16 @@ type Props = ComponentProps<typeof GluestackButton> & {
   themeVariant?: ButtonThemeVariant
   isLoading?: boolean
   icon: React.ElementType
+  buttonSize?: number
+  iconSize?: number
 }
 
 export function ButtonIcon({
   isLoading = false,
   themeVariant = "default",
   icon: Icon,
+  buttonSize = 40,
+  iconSize = 20,
   ...rest
 }: Props) {
   const getBgColor = () => {
@@ -48,15 +52,15 @@ export function ButtonIcon({
   return (
     <GluestackButton
       bg={getBgColor()}
-      width={"$10"}
-      height={"$10"}
+      width={buttonSize}
+      height={buttonSize}
       borderRadius={"$full"}
       {...rest}
     >
       {isLoading ? (
         <ButtonSpinner />
       ) : (
-        <Icon size={20} color={getIconColor()} />
+        <Icon size={iconSize} color={getIconColor()} />
       )}
     </GluestackButton>
   )

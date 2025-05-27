@@ -77,7 +77,6 @@ api.registerInterceptTokenManager = (signOut) => {
               originalRequestConfig.headers = {
                 Authorization: `Bearer ${data.token}`,
               }
-
               api.defaults.headers.common[
                 "Authorization"
               ] = `Bearer ${data.token}`
