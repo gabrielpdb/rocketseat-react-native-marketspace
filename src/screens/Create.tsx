@@ -29,8 +29,7 @@ import * as ImagePicker from "expo-image-picker"
 import { ToastMessage } from "@components/ToastMessage"
 import { useState } from "react"
 import { api } from "@services/api"
-
-type PaymentMethods = "deposit" | "pix" | "cash" | "boleto" | "card"
+import { PaymentMethods } from "@dtos/ProductDTO"
 
 type FormDataProps = {
   name: string
@@ -41,7 +40,7 @@ type FormDataProps = {
   payment_methods: PaymentMethods[]
 }
 
-type PhotoProps = {
+export type PhotoProps = {
   name: string
   type: string
   uri: string
@@ -144,6 +143,20 @@ export function Create() {
   }: FormDataProps) {
     try {
       setIsLoading(true)
+
+      console.log(photos)
+      navigation.navigate("preview", {
+        product: {
+          accept_trade,
+          description,
+          is_new,
+          name,
+          payment_methods,
+          price,
+        },
+        photos: photos,
+      })
+      return
 
       const response = await api.post("/products", {
         name,

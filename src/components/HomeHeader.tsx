@@ -25,16 +25,7 @@ export function HomeHeader({ ...rest }) {
       {...rest}
     >
       <HStack flex={1} gap={"10"} alignItems="center">
-        <UserPhoto
-          source={
-            user.avatar
-              ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
-              : defaultUserPhotoImg
-          }
-          alt="Imagem do usuário"
-          uri={user.avatar}
-          width={45}
-        />
+        <UserPhoto alt="Imagem do usuário" width={45} />
         <VStack>
           <Text>Boas vindas,</Text>
           <Heading>{user.name}!</Heading>

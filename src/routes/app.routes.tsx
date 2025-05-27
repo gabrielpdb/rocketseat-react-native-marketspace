@@ -4,7 +4,7 @@ import {
   BottomTabNavigationProp,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs"
-import { Create } from "@screens/Create"
+import { Create, PhotoProps } from "@screens/Create"
 import { Details } from "@screens/Details"
 import { Edit } from "@screens/Edit"
 import { EmptyScreen } from "@screens/EmptyScreen"
@@ -14,6 +14,7 @@ import { MyAds } from "@screens/MyAds"
 import { Preview } from "@screens/Preview"
 import { House, SignOut, Tag } from "phosphor-react-native"
 import { Platform } from "react-native"
+import { ProductDTO } from "@dtos/ProductDTO"
 
 type AppRoutes = {
   home: undefined
@@ -21,7 +22,7 @@ type AppRoutes = {
   myAds: undefined
   myAdDetails: undefined
   create: undefined
-  preview: undefined
+  preview: { product: ProductDTO; photos: PhotoProps[] }
   edit: undefined
   logout: undefined
 }
