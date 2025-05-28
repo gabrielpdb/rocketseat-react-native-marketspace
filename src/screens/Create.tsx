@@ -360,6 +360,7 @@ export function Create() {
           themeVariant="grayScale"
           width={"auto"}
           flex={1}
+          onPress={() => navigation.navigate("home")}
         />
         <Button
           title="Avançar"

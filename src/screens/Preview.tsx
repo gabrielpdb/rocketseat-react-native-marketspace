@@ -73,16 +73,15 @@ export function Preview() {
           formData.append("images", photo as any)
         })
 
-        const { data } = await api.post("/products/images", formData, {
+        await api.post("/products/images", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
-
-        console.log(data)
       }
     } catch (error) {
       console.log(error)
     } finally {
       setIsLoading(false)
+      navigation.navigate("home")
     }
   }
 

@@ -18,7 +18,7 @@ import { ProductDTO } from "@dtos/ProductDTO"
 
 type AppRoutes = {
   home: undefined
-  details: undefined
+  details: { id: string }
   myAds: undefined
   myAdDetails: undefined
   create: { product?: ProductDTO; images?: PhotoProps[] }
