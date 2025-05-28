@@ -20,16 +20,20 @@ import { Input } from "@components/Input"
 import { Textarea } from "@components/Textarea"
 import { RadioInput } from "@components/RadioInput"
 import { Controller, useForm } from "react-hook-form"
-import { useNavigation } from "@react-navigation/native"
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native"
 import { AppNavigatorRoutesProps } from "@routes/app.routes"
 import { CheckboxInput } from "@components/CheckboxInput"
 import { Button } from "@components/Button"
 import * as FileSystem from "expo-file-system"
 import * as ImagePicker from "expo-image-picker"
 import { ToastMessage } from "@components/ToastMessage"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { api } from "@services/api"
-import { PaymentMethods } from "@dtos/ProductDTO"
+import { PaymentMethods, ProductDTO } from "@dtos/ProductDTO"
 
 type FormDataProps = {
   name: string
@@ -46,8 +50,25 @@ export type PhotoProps = {
   uri: string
 }
 
+type RouteParamsProps = {
+  product?: ProductDTO
+  images?: PhotoProps[]
+}
+
 export function Create() {
   const { tokens } = gluestackUIConfig
+  const route = useRoute()
+  const params = route.params as RouteParamsProps | undefined
+  const images = params?.images
+  const product = params?.product
+  const {
+    accept_trade = false,
+    description = "",
+    is_new = true,
+    name = "",
+    payment_methods = [],
+    price = 0,
+  } = product || {}
   const navigation = useNavigation<AppNavigatorRoutesProps>()
   const toast = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -57,7 +78,14 @@ export function Create() {
     handleSubmit,
     reset,
   } = useForm<FormDataProps>({
-    defaultValues: { is_new: true, accept_trade: false },
+    defaultValues: {
+      accept_trade,
+      description,
+      is_new,
+      name,
+      payment_methods,
+      price,
+    },
   })
   const [photos, setPhotos] = useState<PhotoProps[]>([] as PhotoProps[])
 
@@ -144,8 +172,7 @@ export function Create() {
     try {
       setIsLoading(true)
 
-      console.log(photos)
-      navigation.navigate("preview", {
+      return navigation.navigate("preview", {
         product: {
           accept_trade,
           description,
@@ -156,34 +183,20 @@ export function Create() {
         },
         photos: photos,
       })
-      return
-
-      const response = await api.post("/products", {
-        name,
-        description,
-        is_new,
-        price,
-        accept_trade,
-        payment_methods,
-      })
-
-      if (response.data.id) {
-        const formData = new FormData()
-        formData.append("product_id", response.data.id)
-        photos.forEach((photo, index) => {
-          formData.append("images", photo as any)
-        })
-
-        const { data } = await api.post("/products/images", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-      }
     } catch (error) {
       console.log(error)
     } finally {
       setIsLoading(false)
     }
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      if (images) {
+        setPhotos(images)
+      }
+    }, [])
+  )
 
   return (
     <VStack flex={1}>

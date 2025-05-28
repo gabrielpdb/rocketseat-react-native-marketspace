@@ -21,7 +21,7 @@ type AppRoutes = {
   details: undefined
   myAds: undefined
   myAdDetails: undefined
-  create: undefined
+  create: { product?: ProductDTO; images?: PhotoProps[] }
   preview: { product: ProductDTO; photos: PhotoProps[] }
   edit: undefined
   logout: undefined
@@ -119,6 +119,7 @@ export function AppRoutes() {
         name="preview"
         component={Preview}
         options={{
+          tabBarStyle: { display: "none" },
           tabBarButton: () => null,
           tabBarItemStyle: { display: "none" },
         }}
