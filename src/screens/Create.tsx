@@ -60,7 +60,7 @@ export function Create() {
   const route = useRoute()
   const params = route.params as RouteParamsProps | undefined
   const images = params?.images
-  const product = params?.product
+  let product = params?.product
   const {
     accept_trade = false,
     description = "",
@@ -107,7 +107,7 @@ export function Create() {
       const photoSelected = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         quality: 1,
-        aspect: [4, 4],
+        aspect: [4, 3],
         allowsEditing: true,
       })
 
@@ -187,11 +187,17 @@ export function Create() {
       console.log(error)
     } finally {
       setIsLoading(false)
+      navigation.setParams({})
+
+      reset()
+      setPhotos([] as PhotoProps[])
     }
   }
 
   useFocusEffect(
     useCallback(() => {
+      console.log(params)
+
       if (images) {
         setPhotos(images)
       }

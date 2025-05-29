@@ -68,9 +68,13 @@ export function Details() {
 
   async function fetchProduct() {
     try {
+      setIsLoading(true)
+      setPhotos([])
+      setProduct({} as ProductProps)
       const { data } = await api.get(`/products/${id}`)
 
       setProduct(data)
+
       setPhotos(data.product_images)
     } catch (error) {
       console.log(error)
@@ -108,19 +112,27 @@ export function Details() {
         </Center>
       ) : (
         <VStack>
-          <Carousel
-            width={width}
-            height={280}
-            data={photos}
-            renderItem={({ item }) => (
-              <Image
-                resizeMode="cover"
-                style={{ width: "100%", height: "100%" }}
-                source={{ uri: `${api.defaults.baseURL}/images/${item.path}` }}
-                alt={item.id}
-              />
-            )}
-          />
+          {photos.length == 0 ? (
+            <Center>
+              <Loading />
+            </Center>
+          ) : (
+            <Carousel
+              width={width}
+              height={280}
+              data={photos}
+              renderItem={({ item }) => (
+                <Image
+                  resizeMode="cover"
+                  style={{ width: "100%", height: "100%" }}
+                  source={{
+                    uri: `${api.defaults.baseURL}/images/${item.path}`,
+                  }}
+                  alt={item.id}
+                />
+              )}
+            />
+          )}
           <ScrollView mb={"$32"}>
             <VStack px={"$6"} pt="$5" space="3xl">
               <HStack space="sm" alignItems="center">

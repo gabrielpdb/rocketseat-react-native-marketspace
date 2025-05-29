@@ -13,7 +13,7 @@ export function HomeHeader({ ...rest }) {
   const navigation = useNavigation<AppNavigatorRoutesProps>()
 
   function handleNavigateCreate() {
-    navigation.navigate("create")
+    navigation.navigate("create", {})
   }
 
   return (

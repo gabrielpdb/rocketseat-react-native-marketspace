@@ -17,7 +17,7 @@ type Props = {
   name: string
   price: number
   is_new: boolean
-  avatar: string
+  avatar?: string
   product_image: { id: string; path: string }
 }
 
@@ -79,26 +79,28 @@ export function ProductAdListItem({
               </Text>
             </Center>
           </Box>
-          <Box
-            w={"$6"}
-            h={"$6"}
-            position="absolute"
-            top={4}
-            left={4}
-            borderRadius={"50%"}
-            borderWidth={1}
-            borderColor="$gray7"
-          >
-            <Image
-              w={"$full"}
-              h={"$full"}
-              borderRadius={2000}
-              source={{
-                uri: `${api.defaults.baseURL}/images/${avatar}`,
-              }}
-              alt={`Imagem do anúncio de ${name}`}
-            />
-          </Box>
+          {avatar && (
+            <Box
+              w={"$6"}
+              h={"$6"}
+              position="absolute"
+              top={4}
+              left={4}
+              borderRadius={"50%"}
+              borderWidth={1}
+              borderColor="$gray7"
+            >
+              <Image
+                w={"$full"}
+                h={"$full"}
+                borderRadius={2000}
+                source={{
+                  uri: `${api.defaults.baseURL}/images/${avatar}`,
+                }}
+                alt={`Imagem do anúncio de ${name}`}
+              />
+            </Box>
+          )}
         </Box>
         <VStack>
           <Text fontSize={"$sm"} color="$gray2">
