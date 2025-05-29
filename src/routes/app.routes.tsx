@@ -86,6 +86,7 @@ export function AppRoutes() {
         name="details"
         component={Details}
         options={{
+          tabBarStyle: { display: "none" },
           tabBarButton: () => null,
           tabBarItemStyle: { display: "none" },
         }}

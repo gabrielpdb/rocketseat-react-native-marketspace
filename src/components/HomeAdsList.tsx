@@ -20,7 +20,7 @@ export function HomeAdsList() {
   async function fetchAds() {
     try {
       const { data } = await api.get("/products")
-      console.log("DATA =====>", data)
+
       setData(data)
     } catch (error) {
       console.log("o erro foi aqui", error)

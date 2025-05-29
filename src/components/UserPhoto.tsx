@@ -8,9 +8,10 @@ import { useAuth } from "@hooks/useAuth"
 
 type Props = ComponentProps<typeof Image> & {
   width?: number
+  avatar?: string
 }
 
-export function UserPhoto({ width = 88, ...rest }: Props) {
+export function UserPhoto({ width = 88, avatar, ...rest }: Props) {
   const { user } = useAuth()
 
   return (
@@ -18,7 +19,9 @@ export function UserPhoto({ width = 88, ...rest }: Props) {
       <Image
         alt="Imagem do usuário"
         source={
-          user.avatar
+          avatar
+            ? { uri: `${api.defaults.baseURL}/images/${avatar}` }
+            : user.avatar
             ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
             : defaultUserPhotoImg
         }

@@ -144,7 +144,7 @@ export function Preview() {
                 fontSize={"$xl"}
               >
                 <Text color="$blueLight" fontFamily="$heading" fontSize={"$sm"}>
-                  R$
+                  {"R$ "}
                 </Text>{" "}
                 {price.toFixed(2).replace(".", ",")}
               </Heading>

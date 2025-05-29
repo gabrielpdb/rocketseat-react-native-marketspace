@@ -8,3 +8,8 @@ export type ProductDTO = {
   accept_trade: boolean
   payment_methods: PaymentMethods[]
 }
+
+export type ProductImagesDTO = {
+  id: string
+  path: string
+}
