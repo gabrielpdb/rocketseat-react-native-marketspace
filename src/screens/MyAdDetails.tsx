@@ -1,8 +1,14 @@
-import { ProductDTO, ProductImagesDTO } from "@dtos/ProductDTO"
+import { useCallback, useState } from "react"
+import { Dimensions, Linking, FlatList, Alert } from "react-native"
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native"
+
 import {
   Box,
   Center,
-  FlatList,
   HStack,
   Image,
   ScrollView,
@@ -10,34 +16,30 @@ import {
   VStack,
   Heading,
 } from "@gluestack-ui/themed"
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native"
-import { Dimensions, Linking } from "react-native"
-import Carousel from "react-native-reanimated-carousel"
-import { UserPhoto } from "@components/UserPhoto"
+
+import { ProductDTO, ProductImagesDTO } from "@dtos/ProductDTO"
 import { useAuth } from "@hooks/useAuth"
 import { api } from "@services/api"
+import { AppNavigatorRoutesProps } from "@routes/app.routes"
+
 import {
   ArrowLeft,
   Bank,
   Barcode,
   CreditCard,
-  IconProps,
   Money,
   Power,
   QrCode,
-  Tag,
   Trash,
   WhatsappLogo,
 } from "phosphor-react-native"
+import { IconProps } from "phosphor-react-native"
+
 import { Button } from "@components/Button"
-import { useCallback, useState } from "react"
-import { AppNavigatorRoutesProps } from "@routes/app.routes"
 import { ButtonIcon } from "@components/ButtonIcon"
+import { UserPhoto } from "@components/UserPhoto"
 import { Loading } from "@components/Loading"
+import Carousel from "react-native-reanimated-carousel"
 
 const width = Dimensions.get("window").width
 
@@ -50,22 +52,21 @@ type PaymentMethodsProps = { key: string; name: string }
 type ProductProps = ProductDTO & {
   user: { avatar: string; name: string; tel: string }
   payment_methods: PaymentMethodsProps[]
+  is_active: boolean
 }
 
 export function MyAdDetails() {
   const { user } = useAuth()
-  const [isLoading, setIsLoading] = useState(true)
   const navigation = useNavigation<AppNavigatorRoutesProps>()
-  const [product, setProduct] = useState<ProductProps>({} as ProductProps)
-  const [photos, setPhotos] = useState<ProductImagesDTO[]>(
-    [] as ProductImagesDTO[]
-  )
-
   const route = useRoute()
   const { id } = route.params as RouteParamsProps
 
+  const [product, setProduct] = useState<ProductProps>({} as ProductProps)
+  const [photos, setPhotos] = useState<ProductImagesDTO[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
   function handleGoBack() {
-    navigation.goBack()
+    navigation.navigate("myAds")
   }
 
   async function fetchProduct() {
@@ -73,10 +74,9 @@ export function MyAdDetails() {
       setIsLoading(true)
       setPhotos([])
       setProduct({} as ProductProps)
+
       const { data } = await api.get(`/products/${id}`)
-
       setProduct(data)
-
       setPhotos(data.product_images)
     } catch (error) {
       console.log(error)
@@ -85,10 +85,40 @@ export function MyAdDetails() {
     }
   }
 
-  async function handleGoToWhatsapp() {
-    Linking.openURL(
-      `https://wa.me/${product.user.tel}?text=Tenho%20interesse%20no%20${product.name}%20anunciado%20no%20Marketspace`
+  async function handleChangeProductStatus() {
+    try {
+      setIsLoading(true)
+      await api.patch(`/products/${id}`, { is_active: !product.is_active })
+      setProduct({ ...product, is_active: !product.is_active })
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  function handleRemoveAdConfirm() {
+    Alert.alert(
+      "Excluir anúncio",
+      "Tem certeza de que deseja excluir este anúncio?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => handleRemoveAd(),
+        },
+      ]
     )
+  }
+
+  async function handleRemoveAd() {
+    try {
+      await api.delete(`/products/${id}`)
+      navigation.navigate("myAds")
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   useFocusEffect(
@@ -97,9 +127,65 @@ export function MyAdDetails() {
     }, [id])
   )
 
+  function renderCarousel() {
+    if (photos.length === 0) {
+      return (
+        <Center>
+          <Loading />
+        </Center>
+      )
+    }
+
+    return (
+      <Carousel
+        width={width}
+        height={280}
+        data={photos}
+        renderItem={({ item }) => (
+          <Image
+            resizeMode="cover"
+            style={{ width: "100%", height: "100%" }}
+            source={{ uri: `${api.defaults.baseURL}/images/${item.path}` }}
+            alt={item.id}
+          />
+        )}
+      />
+    )
+  }
+
+  function renderPaymentMethods() {
+    const iconMap: Record<string, React.FC<IconProps>> = {
+      deposit: Bank,
+      pix: QrCode,
+      cash: Money,
+      boleto: Barcode,
+      card: CreditCard,
+    }
+
+    return (
+      <FlatList
+        scrollEnabled={false}
+        data={product.payment_methods}
+        keyExtractor={(item, index) => `${item.key}-${index}`}
+        renderItem={({ item }) => {
+          const Icon = iconMap[item.key] || QrCode
+          return (
+            <HStack alignItems="center" space="sm">
+              <Icon size={20} weight="regular" />
+              <Text color="$gray2" fontSize={"$sm"}>
+                {item.name}
+              </Text>
+            </HStack>
+          )
+        }}
+      />
+    )
+  }
+
   return (
-    <VStack>
-      <HStack px={"$6"} mt={"$16"} mb={"$4"}>
+    <VStack flex={1}>
+      {/* Header */}
+      <HStack px="$6" mt="$16" mb="$4">
         <Center>
           <ButtonIcon
             icon={ArrowLeft}
@@ -108,156 +194,138 @@ export function MyAdDetails() {
           />
         </Center>
       </HStack>
+
+      {/* Conteúdo principal */}
       {isLoading ? (
-        <Center>
+        <Center flex={1}>
           <Loading />
         </Center>
       ) : (
-        <VStack>
-          {photos.length == 0 ? (
-            <Center>
-              <Loading />
-            </Center>
-          ) : (
-            <Carousel
+        <>
+          {renderCarousel()}
+
+          {!product.is_active && (
+            <Box
               width={width}
               height={280}
-              data={photos}
-              renderItem={({ item }) => (
-                <Image
-                  resizeMode="cover"
-                  style={{ width: "100%", height: "100%" }}
-                  source={{
-                    uri: `${api.defaults.baseURL}/images/${item.path}`,
-                  }}
-                  alt={item.id}
-                />
-              )}
-            />
+              bg="$gray1"
+              zIndex={1000}
+              mt={-280}
+              opacity={0.5}
+            >
+              <Center flex={1}>
+                <Heading
+                  color="$gray7"
+                  fontFamily="$heading"
+                  fontSize="$sm"
+                  opacity={1}
+                >
+                  ANÚNCIO DESATIVADO
+                </Heading>
+              </Center>
+            </Box>
           )}
-          <ScrollView mb={"$32"}>
-            <VStack px={"$6"} pt="$5" space="3xl">
+
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 200 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <VStack px="$6" pt="$5" space="3xl">
               <HStack space="sm" alignItems="center">
                 <UserPhoto avatar={product.user.avatar} width={24} />
-                <Text>{product.user.name} </Text>
+                <Text>{product.user.name}</Text>
               </HStack>
 
               <VStack>
                 <Box
-                  py={"$0.5"}
-                  px={"$2"}
+                  py="$0.5"
+                  px="$2"
                   bg="$gray5"
                   alignSelf="flex-start"
-                  borderRadius={"$full"}
-                  mb={"$2"}
+                  borderRadius="$full"
+                  mb="$2"
                 >
                   <Text
                     fontFamily="$heading"
-                    fontSize={"$2xs"}
+                    fontSize="$2xs"
                     style={{ textTransform: "uppercase" }}
                   >
                     {product.is_new ? "Novo" : "Usado"}
                   </Text>
                 </Box>
+
                 <HStack justifyContent="space-between" alignItems="center">
-                  <Heading fontSize={"$xl"}>{product.name}</Heading>
+                  <Heading fontSize="$xl">{product.name}</Heading>
                   <Heading
                     color="$blueLight"
                     fontFamily="$heading"
-                    fontSize={"$xl"}
+                    fontSize="$xl"
                   >
                     <Text
                       color="$blueLight"
                       fontFamily="$heading"
-                      fontSize={"$sm"}
+                      fontSize="$sm"
                     >
-                      {"R$ "}
+                      R${" "}
                     </Text>
                     {product.price.toFixed(2).replace(".", ",")}
                   </Heading>
                 </HStack>
 
-                <Text fontFamily="$body" fontSize={"$sm"}>
+                <Text fontFamily="$body" fontSize="$sm">
                   {product.description}
                 </Text>
               </VStack>
+
               <VStack>
                 <HStack alignItems="center" space="sm">
-                  <Heading fontSize={"$sm"}>Aceita troca?</Heading>
-                  <Text fontSize={"$sm"}>
+                  <Heading fontSize="$sm">Aceita troca?</Heading>
+                  <Text fontSize="$sm">
                     {product.accept_trade ? "Sim" : "Não"}
                   </Text>
                 </HStack>
-                <VStack>
-                  <Heading fontSize={"$sm"}>Meios de pagamento</Heading>
-                  {product.payment_methods.length > 0 && (
-                    <FlatList
-                      overflow="hidden"
-                      scrollEnabled={false}
-                      gap={4}
-                      data={product.payment_methods}
-                      keyExtractor={(item, index) => `${item}-${index}`} // garante chave única
-                      renderItem={({ item }: any) => {
-                        const iconMap: Record<string, React.FC<IconProps>> = {
-                          deposit: Bank,
-                          pix: QrCode,
-                          cash: Money,
-                          boleto: Barcode,
-                          card: CreditCard,
-                        }
-                        const textMap: Record<string, string> = {
-                          deposit: "Depósito",
-                          pix: "Pix",
-                          cash: "Dinheiro",
-                          boleto: "Boleto",
-                          card: "Cartão de crédito",
-                        }
 
-                        const Icon = iconMap[item.key] || QrCode
-
-                        return (
-                          <HStack alignItems="center" space="sm">
-                            <Icon size={20} weight="regular" />
-                            <Text color="$gray2" fontSize={"$sm"}>
-                              {item.name}
-                            </Text>
-                          </HStack>
-                        )
-                      }}
-                    />
-                  )}
+                <VStack space="xs" mt="$2">
+                  <Heading fontSize="$sm">Meios de pagamento</Heading>
+                  {product.payment_methods.length > 0 && renderPaymentMethods()}
                 </VStack>
               </VStack>
             </VStack>
           </ScrollView>
+
+          {/* Botões inferiores */}
           <VStack
-            w={"$full"}
-            px={"$6"}
-            pt={"$2"}
-            pb={"$4"}
+            position="absolute"
+            w="$full"
+            bottom={0}
+            px="$6"
+            pt="$4"
+            pb={"$6"}
             bg="$gray6"
             space="md"
-            position="absolute"
-            bottom={-20}
           >
             <Button
               icon={Power}
-              title="Desativar anúncio"
-              themeVariant="dark"
-              width={"auto"}
+              title={
+                product.is_active ? "Desativar anúncio" : "Reativar anúncio"
+              }
+              onPress={handleChangeProductStatus}
+              themeVariant={product.is_active ? "dark" : "default"}
+              width="auto"
               flex={1}
               isLoading={isLoading}
             />
             <Button
               icon={Trash}
+              onPress={handleRemoveAdConfirm}
               title="Excluir anúncio"
               themeVariant="grayScale"
-              width={"auto"}
+              width="auto"
               flex={1}
               isLoading={isLoading}
             />
           </VStack>
-        </VStack>
+        </>
       )}
     </VStack>
   )
