@@ -23,7 +23,7 @@ type Props = {
   product_image: { id: string; path: string }
 }
 
-export function ProductAdListItem({
+export function MyProductAdListItem({
   name,
   price,
   is_new,
@@ -35,7 +35,7 @@ export function ProductAdListItem({
   const navigation = useNavigation<AppNavigatorRoutesProps>()
 
   function handleDetails() {
-    navigation.navigate("details", { id })
+    navigation.navigate("myAdDetails", { id })
   }
 
   return (

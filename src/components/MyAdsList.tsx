@@ -6,12 +6,14 @@ import { ProductDTO } from "@dtos/ProductDTO"
 import { useFocusEffect } from "@react-navigation/native"
 import { ProductAdListItem } from "./ProductAdListItem"
 import { FlatList } from "react-native"
+import { MyProductAdListItem } from "./MyProductAdListItem"
 
 type ProductListProps = ProductDTO & {
   id: string
   user_id: string
   user: { avatar: string }
   product_images: { id: string; path: string }[]
+  is_active: boolean
 }
 
 export function MyAdsList() {
@@ -51,12 +53,13 @@ export function MyAdsList() {
         }}
         renderItem={({ item }) => {
           return (
-            <ProductAdListItem
+            <MyProductAdListItem
               is_new={item.is_new}
               name={item.name}
               price={item.price}
               product_image={item.product_images[0]}
               id={item.id}
+              is_active={item.is_active}
             />
           )
         }}

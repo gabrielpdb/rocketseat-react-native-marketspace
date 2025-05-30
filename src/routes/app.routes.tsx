@@ -20,7 +20,7 @@ type AppRoutes = {
   home: undefined
   details: { id: string }
   myAds: undefined
-  myAdDetails: undefined
+  myAdDetails: { id: string }
   create: { product?: ProductDTO; images?: PhotoProps[] }
   preview: { product: ProductDTO; photos: PhotoProps[] }
   edit: undefined
@@ -112,6 +112,7 @@ export function AppRoutes() {
         name="myAdDetails"
         component={MyAdDetails}
         options={{
+          tabBarStyle: { display: "none" },
           tabBarButton: () => null,
           tabBarItemStyle: { display: "none" },
         }}

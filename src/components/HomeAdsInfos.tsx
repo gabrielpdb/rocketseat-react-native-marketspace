@@ -1,19 +1,42 @@
 import { Heading, HStack, Text, VStack } from "@gluestack-ui/themed"
 import { ArrowRight, Tag } from "phosphor-react-native"
 import { gluestackUIConfig } from "../../config/gluestack-ui.config"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { ButtonText } from "./ButtonText"
-import { useNavigation } from "@react-navigation/native"
+import { useFocusEffect, useNavigation } from "@react-navigation/native"
 import { AppNavigatorRoutesProps } from "@routes/app.routes"
+import { api } from "@services/api"
 
 export function HomeAdsInfos({ ...rest }) {
   const navigation = useNavigation<AppNavigatorRoutesProps>()
   const { tokens } = gluestackUIConfig
-  const [adsCount, setAdsCount] = useState(4)
+  const [adsCount, setAdsCount] = useState(0)
 
   function handleNavigateMyAds() {
     navigation.navigate("myAds")
   }
+
+  async function fetchMyAds() {
+    try {
+      const { data } = await api.get("/users/products")
+      let count = 0
+      data.forEach((product: any) => {
+        if (product.is_active) {
+          count++
+        }
+      })
+
+      setAdsCount(count)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyAds()
+    }, [])
+  )
 
   return (
     <VStack>

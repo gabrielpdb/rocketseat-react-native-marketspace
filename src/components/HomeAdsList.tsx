@@ -56,6 +56,7 @@ export function HomeAdsList() {
             product_image={item.product_images[0]}
             avatar={item.user.avatar}
             id={item.id}
+            is_active={true}
           />
         )}
       />
