@@ -6,6 +6,7 @@ import { ProductDTO } from "@dtos/ProductDTO"
 import { useFocusEffect } from "@react-navigation/native"
 import { ProductAdListItem } from "./ProductAdListItem"
 import { FlatList } from "react-native"
+import { FilterActionsheet } from "./FilterActionSheet"
 
 type ProductListProps = ProductDTO & {
   id: string
@@ -14,8 +15,39 @@ type ProductListProps = ProductDTO & {
   product_images: { id: string; path: string }[]
 }
 
+type FilterProps = {
+  is_new?: boolean
+  accept_trade?: boolean
+  query?: string
+  payment_methods?: string[]
+}
+
 export function HomeAdsList() {
   const [data, setData] = useState<ProductListProps[]>([] as ProductListProps[])
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [filter, setFilter] = useState<FilterProps>({
+    is_new: undefined,
+    accept_trade: false,
+    payment_methods: [],
+    query: "",
+  })
+
+  function openFilterSheet() {
+    setIsFilterOpen(true)
+  }
+
+  function closeFilterSheet() {
+    setIsFilterOpen(false)
+  }
+
+  function handleResetFilters() {
+    setFilter((prev) => ({
+      ...prev,
+      is_new: undefined,
+      accept_trade: false,
+      payment_methods: [],
+    }))
+  }
 
   async function fetchAds() {
     try {
@@ -30,12 +62,16 @@ export function HomeAdsList() {
   useFocusEffect(
     useCallback(() => {
       fetchAds()
-    }, [])
+    }, [filter])
   )
   return (
     <VStack>
       <Text mb={"$3"}>Compre produtos variados</Text>
-      <SearchInput />
+      <SearchInput
+        value={filter.query ?? ""}
+        onChange={(text) => setFilter((prev) => ({ ...prev, query: text }))}
+        onOpenFilter={openFilterSheet}
+      />
       <FlatList
         style={{ width: "100%", maxWidth: "100%", marginBottom: 20000 }}
         data={data}
@@ -59,6 +95,15 @@ export function HomeAdsList() {
             is_active={true}
           />
         )}
+      />
+      <FilterActionsheet
+        isOpen={isFilterOpen}
+        onClose={closeFilterSheet}
+        filter={filter}
+        onApply={(newFilters) =>
+          setFilter((prev) => ({ ...prev, ...newFilters }))
+        }
+        onReset={handleResetFilters}
       />
     </VStack>
   )

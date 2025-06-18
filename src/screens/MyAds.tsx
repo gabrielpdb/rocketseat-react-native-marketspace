@@ -1,22 +1,29 @@
 import { ButtonIcon } from "@components/ButtonIcon"
 import { MyAdsList } from "@components/MyAdsList"
-import {
-  Box,
-  Center,
-  Heading,
-  HStack,
-  Text,
-  VStack,
-} from "@gluestack-ui/themed"
+import { Button, Menu, useTheme } from "@gluestack-ui/themed"
+import { Box, Heading, HStack, Text, VStack } from "@gluestack-ui/themed"
+import { Picker } from "@react-native-picker/picker"
 import { useFocusEffect, useNavigation } from "@react-navigation/native"
 import { AppNavigatorRoutesProps } from "@routes/app.routes"
 import { api } from "@services/api"
 import { Plus } from "phosphor-react-native"
 import { useCallback, useState } from "react"
+import { View } from "react-native"
+import DropDownPicker from "react-native-dropdown-picker"
+import { gluestackUIConfig } from "../../config/gluestack-ui.config"
 
 export function MyAds() {
+  const { tokens } = gluestackUIConfig
   const [numberOfAds, setNumberOfAds] = useState(0)
   const navigation = useNavigation<AppNavigatorRoutesProps>()
+
+  const [items, setItems] = useState([
+    { label: "Todos", value: "all" },
+    { label: "Novos", value: "news" },
+    { label: "Usados", value: "olds" },
+  ])
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("all")
 
   function handleNavigateCreate() {
     navigation.navigate("create", {})
@@ -56,7 +63,22 @@ export function MyAds() {
       </HStack>
       <HStack alignItems="center" justifyContent="space-between" mb={"$5"}>
         <Text>{numberOfAds} anúncios</Text>
-        <Box width={111} h={34} bg="red"></Box>
+
+        <Box w={"$40"}>
+          <DropDownPicker
+            style={{
+              backgroundColor: "transparent",
+              borderColor: tokens.colors.gray5,
+            }}
+            listItemContainerStyle={{ backgroundColor: tokens.colors.gray6 }}
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={setValue}
+            setItems={setItems}
+          />
+        </Box>
       </HStack>
 
       <VStack height={"100%"} flex={1}>
